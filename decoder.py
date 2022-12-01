@@ -70,7 +70,7 @@ class TransformerDecoder(tf.keras.Model):
         self.encoding = PositionalEncoding(self.vocab_size, self.hidden_size, self.window_size)
 
         # Define transformer decoder layer:
-        self.decoder = TransformerBlock(self.hidden_size, False)
+        self.decoder = TransformerBlock(self.hidden_size, True)
 
         # Define classification layer (logits)
         self.classifier = tf.keras.layers.Dense(self.vocab_size)
