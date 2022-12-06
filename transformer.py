@@ -150,17 +150,13 @@ class TransformerBlock(tf.keras.layers.Layer):
         # 1) Define the Feed Forward, self-attention, encoder-decoder-attention, and layer normalization layers
         # 2) For 2470 students, use multiheaded attention
 
-        self.ff_layer = tf.keras.Sequential(
-            [
-                tf.keras.layers.Dense(emb_sz, activation="relu"),
-                tf.keras.layers.Dense(emb_sz),
-            ]
-        )
+        self.ff_layer = tf.keras.layers.Dense(emb_sz, activation="relu")
 
         self.self_atten         = AttentionHead(emb_sz, emb_sz, True)  if not isMultiHeadedAttention else MultiHeadedAttention(emb_sz, True)
         self.self_context_atten = AttentionHead(emb_sz, emb_sz, False) if not isMultiHeadedAttention else MultiHeadedAttention(emb_sz, False)
         self.layer_norm = tf.keras.layers.LayerNormalization()
         self.add = tf.keras.layers.Add()
+        self.dropout = tf.keras.layers.Dropout(0.5)
 
     @tf.function
     def call(self, inputs, context_sequence):
@@ -187,14 +183,14 @@ class TransformerBlock(tf.keras.layers.Layer):
 
         self_atten = self.self_atten(x, x, x)
         x = self.add([self_atten, x])
-        x = self.layer_norm(x)
+        x = self.dropout(self.layer_norm(x))
         
         context_atten = self.self_context_atten(context_sequence, context_sequence, x)
         x = self.add([context_atten, x])
-        x = self.layer_norm(x)
+        x = self.dropout(self.layer_norm(x))
         
         x = self.ff_layer(x)
-        x = self.layer_norm(x)
+        x = self.dropout(self.layer_norm(x))
 
         return tf.nn.relu(x)
 

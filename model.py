@@ -166,6 +166,7 @@ def loss_function(prbs, labels, mask):
     :param mask:  tensor that acts as a padding mask [batch_size x window_size]
     :return: the loss of the model as a tensor
     """
+#     print(prbs.shape, labels.shape)
     masked_labs = tf.boolean_mask(labels, mask)
     masked_prbs = tf.boolean_mask(prbs, mask)
     scce = tf.keras.losses.sparse_categorical_crossentropy(masked_labs, masked_prbs, from_logits=True)
