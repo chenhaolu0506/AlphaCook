@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-try: from transformer import TransformerBlock, PositionalEncoding
-except Exception as e: print(f"TransformerDecoder Might Not Work, as components failed to import:\n{e}")
+from transformer import TransformerBlock, PositionalEncoding
+from attention import EncoderLayer
 
 ########################################################################################
 
@@ -71,13 +71,11 @@ class TransformerDecoder(tf.keras.Model):
 
         # Define transformer decoder layer:
         self.decoder = TransformerBlock(self.hidden_size, True)
-        self.decoder = TransformerBlock(self.hidden_size, True)
+        
+#         self.encoder = EncoderLayer(d_model=128, num_heads=8, dff=64)
 
         # Define classification layer (logits)
-        self.classifier = tf.keras.Sequential([
-            tf.keras.layers.Dense(hidden_size), 
-            tf.keras.layers.Dense(self.vocab_size)
-        ])
+        self.classifier = tf.keras.layers.Dense(self.vocab_size)
 #                                                 kernel_regularizer=tf.keras.regularizers.L1(0.0001),
 #                                                 activity_regularizer=tf.keras.regularizers.L2(0.0001))
 
@@ -89,8 +87,10 @@ class TransformerDecoder(tf.keras.Model):
         # 4) Apply dense layer(s) to the decoder out to generate logits
         vec_encoded_images = self.image_embedding(tf.expand_dims(encoded_images, 1))
         pos_captions = self.encoding(captions)
-
+        
+#         temp = self.encoder(tf.concat([pos_captions, vec_encoded_images], axis=1))
+#         output = self.decoder(pos_captions, vec_encoded_images)
         output = self.decoder(tf.concat([pos_captions, vec_encoded_images], axis=1), vec_encoded_images)
 
         probs = self.classifier(output)
-        return probs[:, :-1, :]
+        return probs[:,:-1,:]
