@@ -166,7 +166,6 @@ class TransformerDecoder(tf.keras.Model):
         
         # Define transformer decoder layer:
         self.decoder = TransformerBlock(hidden_size)
-        self.decoder_2 = TransformerBlock(hidden_size)
         
         # Define classification layer (logits)
         self.classifier = tf.keras.layers.Dense(vocab_size)
@@ -183,6 +182,5 @@ class TransformerDecoder(tf.keras.Model):
         # print('image_embeddings', image_embeddings.shape)
         # print('caption_embeddings', caption_embeddings.shape)
         decoder_output = self.decoder(caption_embeddings, image_embeddings)
-        decoder_output = self.decoder(decoder_output, image_embeddings)
         logits = self.classifier(decoder_output)
         return logits
